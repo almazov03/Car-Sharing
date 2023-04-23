@@ -45,7 +45,7 @@ public abstract class AbstractState implements State {
     }
 
     protected int getNumber(int size) {
-        while(true) {
+        while (true) {
             try {
                 int n = scanner.nextInt();
                 Objects.checkIndex(n, size + 1);
@@ -67,7 +67,7 @@ public abstract class AbstractState implements State {
     }
 
     protected void goBack() {
-        assert(!stateList.isEmpty());
+        assert (!stateList.isEmpty());
         stateList.remove(stateList.size() - 1);
     }
 }

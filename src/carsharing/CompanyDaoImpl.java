@@ -63,7 +63,6 @@ public class CompanyDaoImpl implements CompanyDao {
     private void openConnection(String fileName) throws ClassNotFoundException, SQLException {
         Class.forName(JDBC_DRIVER);
 
-
         System.out.println("Connecting to database...");
         connection = DriverManager.getConnection(DB_URL + fileName);
         connection.setAutoCommit(true);
@@ -166,18 +165,18 @@ public class CompanyDaoImpl implements CompanyDao {
             ResultSet resultSet = statement.executeQuery(sql);
             while (resultSet.next()) {
                 int carId = resultSet.getInt("RENTED_CAR_ID");
-                if (carId != 0){
+                if (carId != 0) {
                     idList.add(carId);
                 }
             }
         }
 
-        StringBuilder sql = new StringBuilder("SELECT * FROM CAR WHERE COMPANY_ID = " + company.id());
+        StringBuilder sql = new StringBuilder(
+                "SELECT * FROM CAR WHERE COMPANY_ID = " + company.id());
         for (Integer id : idList) {
             sql.append(" AND ID != ").append(id);
         }
         ResultSet resultSet = statement.executeQuery(sql.toString());
-
 
         return getCarList(resultSet);
     }
