@@ -146,23 +146,24 @@ public class CompanyDaoImpl implements CompanyDao {
     @Override
     public List<Car> getAllCars(Company company) throws SQLException {
         String sql = "SELECT * FROM CAR WHERE COMPANY_ID = " + company.id();
-        ResultSet resultSet = statement.executeQuery(sql);
-        return getCarList(resultSet);
+        try (ResultSet resultSet = statement.executeQuery(sql)) {
+            return getCarList(resultSet);
+        }
+
     }
 
     @Override
     public List<Customer> getAllCustomers() throws SQLException {
         String sql = "SELECT * FROM CUSTOMER ORDER BY ID";
-        ResultSet resultSet = statement.executeQuery(sql);
-        return getCustomerList(resultSet);
+        try (ResultSet resultSet = statement.executeQuery(sql)) {
+            return getCustomerList(resultSet);
+        }
     }
 
     @Override
     public List<Car> getAllFreeCar(Company company) throws SQLException {
         List<Integer> idList = new ArrayList<>();
-        {
-            String sql = "SELECT * FROM CUSTOMER ";
-            ResultSet resultSet = statement.executeQuery(sql);
+        try (ResultSet resultSet = statement.executeQuery("SELECT * FROM CUSTOMER")){
             while (resultSet.next()) {
                 int carId = resultSet.getInt("RENTED_CAR_ID");
                 if (carId != 0) {
@@ -176,31 +177,34 @@ public class CompanyDaoImpl implements CompanyDao {
         for (Integer id : idList) {
             sql.append(" AND ID != ").append(id);
         }
-        ResultSet resultSet = statement.executeQuery(sql.toString());
 
-        return getCarList(resultSet);
+        try (ResultSet resultSet = statement.executeQuery(sql.toString())) {
+            return getCarList(resultSet);
+        }
     }
 
     @Override
     public Car getCar(int carId) throws SQLException {
         String sql = "SELECT * FROM CAR WHERE ID = " + carId;
-        ResultSet resultSet = statement.executeQuery(sql);
-        if (!resultSet.next()) {
-            return null;
-        }
+        try (ResultSet resultSet = statement.executeQuery(sql)) {
+            if (!resultSet.next()) {
+                return null;
+            }
 
-        int id = resultSet.getInt("ID");
-        String name = resultSet.getString("NAME");
-        int companyId = resultSet.getInt("COMPANY_ID");
-        return new Car(id, name, companyId);
+            int id = resultSet.getInt("ID");
+            String name = resultSet.getString("NAME");
+            int companyId = resultSet.getInt("COMPANY_ID");
+            return new Car(id, name, companyId);
+        }
     }
 
     @Override
     public Car getCar(Customer customer) throws SQLException {
         String sql = "SELECT * FROM CUSTOMER WHERE ID = " + customer.id();
-        ResultSet resultSet = statement.executeQuery(sql);
-        if (resultSet.next()) {
-            return getCar(resultSet.getInt("RENTED_CAR_ID"));
+        try (ResultSet resultSet = statement.executeQuery(sql)) {
+            if (resultSet.next()) {
+                return getCar(resultSet.getInt("RENTED_CAR_ID"));
+            }
         }
 
         return null;
@@ -214,10 +218,11 @@ public class CompanyDaoImpl implements CompanyDao {
     @Override
     public Company getCompany(int id) throws SQLException {
         String sql = "SELECT * FROM COMPANY WHERE ID = " + id;
-        ResultSet resultSet = statement.executeQuery(sql);
-        if (resultSet.next()) {
-            String name = resultSet.getString("NAME");
-            return new Company(id, name);
+        try (ResultSet resultSet = statement.executeQuery(sql)) {
+            if (resultSet.next()) {
+                String name = resultSet.getString("NAME");
+                return new Company(id, name);
+            }
         }
 
         return null;
@@ -228,7 +233,7 @@ public class CompanyDaoImpl implements CompanyDao {
         String sql = "UPDATE CUSTOMER " +
                 "SET RENTED_CAR_ID = NULL " +
                 "WHERE ID = " + customer.id();
-        statement.executeUpdate(sql);
+        statement.execute(sql);
     }
 
 
